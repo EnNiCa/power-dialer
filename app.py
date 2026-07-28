@@ -1,7 +1,7 @@
 from flask import Flask
 from dotenv import load_dotenv
-import mysql.connector
-import os
+from db import get_connection
+from auth.routes import auth_bp
 
 load_dotenv()
 
@@ -10,12 +10,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    conexion = mysql.connector.connect(
-        host=os.getenv('DB_HOST'),
-        user=os.getenv('DB_USER'),
-        password=os.getenv('DB_PASSWORD'),
-        database=os.getenv('DB_NAME')
-    )
+    conexion = get_connection()
     cursor = conexion.cursor()
     cursor.execute("SELECT COUNT(*) FROM clientes")
     resultado = cursor.fetchone()

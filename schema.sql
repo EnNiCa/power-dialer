@@ -10,19 +10,22 @@ CREATE TABLE clientes (
     telefono VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE comerciales (
+CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(120) NOT NULL
+    nombre VARCHAR(120) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    rol ENUM('comercial', 'admin') NOT NULL
 );
 
 CREATE TABLE llamadas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
-    comercial_id INT NOT NULL,
+    usuario_id INT NOT NULL,
     modo ENUM('entrante', 'saliente') NOT NULL,
     fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
     duracion_segundos INT,
     resultado ENUM('contestada', 'no_contesta', 'buzon', 'ocupado'),
     FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-    FOREIGN KEY (comercial_id) REFERENCES comerciales(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
