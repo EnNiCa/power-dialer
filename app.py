@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, session
+import os
 from dotenv import load_dotenv
 from db import get_connection
 from auth.routes import auth_bp
@@ -7,6 +8,8 @@ load_dotenv()
 
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
+app.register_blueprint(auth_bp)
 
 @app.route('/')
 def home():
