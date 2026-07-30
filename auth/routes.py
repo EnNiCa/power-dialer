@@ -22,9 +22,9 @@ def login():
             session['rol'] = usuario['rol']
             return redirect(url_for('home'))
         else:
-            return render_template('login.html', error="Usuario o contraseña incorrectos")
+            return render_template('auth/login.html', error="Usuario o contraseña incorrectos")
         
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 @auth_bp.route('/logout')
 def logout():
