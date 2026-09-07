@@ -1,8 +1,9 @@
-from flask import Flask, session
+from flask import Flask
 import os
 from dotenv import load_dotenv
-from db import get_connection
 from auth.routes import auth_bp
+from dashboard.routes import dashboard_bp
+from dialer.routes import dialer_bp
 
 load_dotenv()
 
@@ -10,16 +11,8 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 app.register_blueprint(auth_bp)
-
-@app.route('/')
-def home():
-    conexion = get_connection()
-    cursor = conexion.cursor()
-    cursor.execute("SELECT COUNT(*) FROM clientes")
-    resultado = cursor.fetchone()
-    cursor.close()
-    conexion.close()
-    return f"Dialer funcionando. Clientes en base de datos: {resultado[0]}"
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(dialer_bp)
 
 
 if __name__ == '__main__':

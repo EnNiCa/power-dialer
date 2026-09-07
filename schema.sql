@@ -26,6 +26,9 @@ CREATE TABLE llamadas (
     fecha_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
     duracion_segundos INT,
     resultado ENUM('contestada', 'no_contesta', 'buzon', 'ocupado'),
+    twilio_call_sid VARCHAR(64),
+    estado VARCHAR(20),
     FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    UNIQUE KEY uq_twilio_call_sid (twilio_call_sid)
 );

@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Panel - Dialer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Hola, {{ session.get('nombre', '') }}</h1>
+        <p class="page-subtitle">Esto es lo que tienes pendiente hoy, {{ fecha_hoy }}.</p>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat-tile">
+            <span class="stat-value">{{ llamadas_hoy }}</span>
+            <span class="stat-label">Llamadas hoy</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ contactadas_hoy }}</span>
+            <span class="stat-label">Contactadas</span>
+        </div>
+        <div class="stat-tile">
+            <span class="stat-value">{{ pendientes_total }}</span>
+            <span class="stat-label">Pendientes en cola</span>
+        </div>
+    </div>
+
+    <section class="queue-panel">
+        <div class="queue-panel-header">
+            <h2>Cola de llamadas</h2>
+            <a href="{{ url_for('dashboard.marcar') }}" class="btn-primary">Empezar a marcar</a>
+        </div>
+        {% if cola %}
+            <ul class="queue-list">
+                {% for cliente in cola %}
+                    <li class="queue-item">
+                        <div class="queue-item-info">
+                            <span class="queue-item-name">{{ cliente.nombre }}</span>
+                            <span class="queue-item-phone">{{ cliente.telefono }}</span>
+                        </div>
+                        <a href="{{ url_for('dashboard.marcar', cliente_id=cliente.id) }}" class="btn-secondary">Llamar</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">No hay clientes pendientes por contactar.</p>
+        {% endif %}
+    </section>
+{% endblock %}

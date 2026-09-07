@@ -20,7 +20,8 @@ def login():
         if usuario and check_password_hash(usuario['password_hash'], password):
             session['usuario_id'] = usuario['id']
             session['rol'] = usuario['rol']
-            return redirect(url_for('home'))
+            session['nombre'] = usuario['nombre']
+            return redirect(url_for('dashboard.inicio'))
         else:
             return render_template('auth/login.html', error="Usuario o contraseña incorrectos")
         

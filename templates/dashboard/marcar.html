@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block title %}Marcado - Dialer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dialer.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Marcado</h1>
+        <p class="page-subtitle">Llama a tu cola de clientes pendientes.</p>
+    </div>
+
+    <div id="dialer-app"
+         data-token-url="{{ url_for('dialer.token') }}"
+         data-wrapup-url="{{ url_for('dialer.wrapup') }}"
+         data-usuario-id="{{ session.get('usuario_id') }}">
+
+        <div class="dialer-status-row">
+            <span id="dialer-status-badge" class="dialer-status-badge" data-state="connecting">Conectando…</span>
+        </div>
+
+        <p id="dialer-error" class="dialer-error" hidden></p>
+
+        <div id="dialer-empty" class="empty-state"{{ ' hidden' if cliente else '' }}>
+            No hay clientes pendientes por contactar.
+            <a href="{{ url_for('dashboard.inicio') }}" class="btn-secondary">Volver al panel</a>
+        </div>
+
+        <div id="dialer-card" class="dialer-card"{{ ' hidden' if not cliente else '' }}>
+            <div class="dialer-card-info">
+                <span class="dialer-card-name" id="dialer-cliente-nombre"></span>
+                <span class="dialer-card-phone" id="dialer-cliente-telefono"></span>
+                <span class="dialer-card-timer" id="dialer-timer" hidden>00:00</span>
+            </div>
+            <div class="dialer-card-actions">
+                <button type="button" id="dialer-btn-llamar" class="btn-primary" disabled>Llamar</button>
+                <button type="button" id="dialer-btn-colgar" class="btn-secondary" hidden>Colgar</button>
+            </div>
+        </div>
+
+        <div id="dialer-wrapup" class="wrapup-panel" hidden>
+            <h2>¿Cómo fue la llamada?</h2>
+            <div class="wrapup-options" id="wrapup-options">
+                <label class="wrapup-option">
+                    <input type="radio" name="resultado" value="contestada">
+                    Contestada
+                </label>
+                <label class="wrapup-option">
+                    <input type="radio" name="resultado" value="buzon">
+                    Buzón de voz
+                </label>
+                <label class="wrapup-option">
+                    <input type="radio" name="resultado" value="no_contesta">
+                    No contesta
+                </label>
+                <label class="wrapup-option">
+                    <input type="radio" name="resultado" value="ocupado">
+                    Ocupado
+                </label>
+            </div>
+            <button type="button" id="dialer-btn-confirmar" class="btn-primary">Confirmar y siguiente</button>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="https://sdk.twilio.com/js/voice/releases/2.14.0/twilio.min.js"></script>
+    <script>
+        window.DIALER_CLIENTE = {{ cliente | tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/dialer.js') }}"></script>
+{% endblock %}
