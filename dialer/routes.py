@@ -109,6 +109,34 @@ def obtener_llamada(call_sid):
     return jsonify(fila or {'resultado': None, 'estado': None})
 
 
+@dialer_bp.route('/registrar', methods=['POST'])
+@login_required
+def registrar():
+    datos = request.get_json(silent=True) or {}
+    cliente_id = datos.get('cliente_id')
+    resultado = datos.get('resultado')
+
+    if resultado not in RESULTADOS_VALIDOS:
+        return jsonify(error='resultado inválido'), 400
+
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+    cursor.execute(
+        """
+        INSERT INTO llamadas (cliente_id, usuario_id, modo, estado, resultado)
+        VALUES (%s, %s, 'saliente', 'finalizada', %s)
+        """,
+        (cliente_id, session['usuario_id'], resultado)
+    )
+    conexion.commit()
+
+    siguiente = obtener_cola(cursor, limit=1)
+    cursor.close()
+    conexion.close()
+
+    return jsonify(cliente=siguiente[0] if siguiente else None)
+
+
 @dialer_bp.route('/wrapup', methods=['POST'])
 @login_required
 def wrapup():

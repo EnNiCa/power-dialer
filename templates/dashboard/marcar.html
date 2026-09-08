@@ -6,17 +6,10 @@
 {% block content %}
     <div class="page-header">
         <h1>Marcado</h1>
-        <p class="page-subtitle">Llama a tu cola de clientes pendientes.</p>
+        <p class="page-subtitle">Llama a tu cola de clientes pendientes desde tu propio teléfono.</p>
     </div>
 
-    <div id="dialer-app"
-         data-token-url="{{ url_for('dialer.token') }}"
-         data-wrapup-url="{{ url_for('dialer.wrapup') }}"
-         data-usuario-id="{{ session.get('usuario_id') }}">
-
-        <div class="dialer-status-row">
-            <span id="dialer-status-badge" class="dialer-status-badge" data-state="connecting">Conectando…</span>
-        </div>
+    <div id="dialer-app" data-registrar-url="{{ url_for('dialer.registrar') }}">
 
         <p id="dialer-error" class="dialer-error" hidden></p>
 
@@ -29,11 +22,10 @@
             <div class="dialer-card-info">
                 <span class="dialer-card-name" id="dialer-cliente-nombre"></span>
                 <span class="dialer-card-phone" id="dialer-cliente-telefono"></span>
-                <span class="dialer-card-timer" id="dialer-timer" hidden>00:00</span>
             </div>
             <div class="dialer-card-actions">
-                <button type="button" id="dialer-btn-llamar" class="btn-primary" disabled>Llamar</button>
-                <button type="button" id="dialer-btn-colgar" class="btn-secondary" hidden>Colgar</button>
+                <a href="#" id="dialer-btn-llamar" class="btn-primary">Llamar</a>
+                <button type="button" id="dialer-btn-terminada" class="btn-secondary">Ya terminé la llamada</button>
             </div>
         </div>
 
@@ -62,7 +54,6 @@
     </div>
 {% endblock %}
 {% block extra_scripts %}
-    <script src="https://sdk.twilio.com/js/voice/releases/2.14.0/twilio.min.js"></script>
     <script>
         window.DIALER_CLIENTE = {{ cliente | tojson }};
     </script>

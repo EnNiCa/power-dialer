@@ -2,34 +2,20 @@
     const app = document.getElementById('dialer-app');
     if (!app) return;
 
-    const tokenUrl = app.dataset.tokenUrl;
-    const wrapupUrl = app.dataset.wrapupUrl;
-    const usuarioId = app.dataset.usuarioId;
+    const registrarUrl = app.dataset.registrarUrl;
 
-    const badge = document.getElementById('dialer-status-badge');
     const errorBox = document.getElementById('dialer-error');
     const emptyBox = document.getElementById('dialer-empty');
     const card = document.getElementById('dialer-card');
     const nombreEl = document.getElementById('dialer-cliente-nombre');
     const telefonoEl = document.getElementById('dialer-cliente-telefono');
-    const timerEl = document.getElementById('dialer-timer');
-    const btnLlamar = document.getElementById('dialer-btn-llamar');
-    const btnColgar = document.getElementById('dialer-btn-colgar');
+    const linkLlamar = document.getElementById('dialer-btn-llamar');
+    const btnTerminada = document.getElementById('dialer-btn-terminada');
     const wrapupPanel = document.getElementById('dialer-wrapup');
     const wrapupOptions = document.getElementById('wrapup-options');
     const btnConfirmar = document.getElementById('dialer-btn-confirmar');
 
-    let device = null;
-    let activeCall = null;
-    let activeCallSid = null;
     let cliente = window.DIALER_CLIENTE || null;
-    let cronometroInterval = null;
-    let segundosTranscurridos = 0;
-
-    function setBadge(estado, texto) {
-        badge.dataset.state = estado;
-        badge.textContent = texto;
-    }
 
     function mostrarError(mensaje) {
         errorBox.textContent = mensaje;
@@ -42,6 +28,7 @@
     }
 
     function pintarCliente() {
+        wrapupPanel.hidden = true;
         if (!cliente) {
             card.hidden = true;
             emptyBox.hidden = false;
@@ -51,119 +38,13 @@
         card.hidden = false;
         nombreEl.textContent = cliente.nombre;
         telefonoEl.textContent = cliente.telefono;
+        linkLlamar.href = `tel:${cliente.telefono}`;
     }
 
-    function iniciarCronometro() {
-        segundosTranscurridos = 0;
-        timerEl.hidden = false;
-        actualizarCronometro();
-        cronometroInterval = setInterval(() => {
-            segundosTranscurridos += 1;
-            actualizarCronometro();
-        }, 1000);
-    }
-
-    function actualizarCronometro() {
-        const minutos = String(Math.floor(segundosTranscurridos / 60)).padStart(2, '0');
-        const segundos = String(segundosTranscurridos % 60).padStart(2, '0');
-        timerEl.textContent = `${minutos}:${segundos}`;
-    }
-
-    function detenerCronometro() {
-        clearInterval(cronometroInterval);
-        cronometroInterval = null;
-        timerEl.hidden = true;
-    }
-
-    async function inicializarDevice() {
-        try {
-            const respuesta = await fetch(tokenUrl, { method: 'POST' });
-            if (!respuesta.ok) throw new Error('token');
-            const datos = await respuesta.json();
-
-            device = new Twilio.Device(datos.token, { logLevel: 'error' });
-
-            device.on('registered', () => {
-                setBadge('ready', 'Listo');
-                if (cliente) btnLlamar.disabled = false;
-            });
-            device.on('error', (err) => {
-                setBadge('error', 'Error de conexión');
-                mostrarError('No se pudo conectar con el servicio de llamadas: ' + err.message);
-            });
-            device.on('unregistered', () => {
-                setBadge('error', 'Desconectado');
-            });
-
-            await device.register();
-        } catch (err) {
-            setBadge('error', 'Error de conexión');
-            mostrarError('No se pudo preparar el softphone. Recarga la página para reintentar.');
-        }
-    }
-
-    async function llamar() {
-        if (!cliente || !device) return;
-        limpiarError();
-        btnLlamar.disabled = true;
-        wrapupPanel.hidden = true;
-        setBadge('oncall', 'Llamando…');
-
-        try {
-            activeCall = await device.connect({
-                params: {
-                    cliente_id: String(cliente.id),
-                    telefono: cliente.telefono,
-                    usuario_id: String(usuarioId),
-                },
-            });
-            activeCallSid = activeCall.parameters && activeCall.parameters.CallSid;
-
-            activeCall.on('accept', (call) => {
-                activeCallSid = (call.parameters && call.parameters.CallSid) || activeCallSid;
-                setBadge('oncall', 'En llamada');
-                btnColgar.hidden = false;
-                iniciarCronometro();
-            });
-
-            activeCall.on('disconnect', manejarFinDeLlamada);
-            activeCall.on('cancel', manejarFinDeLlamada);
-            activeCall.on('error', (err) => {
-                mostrarError('Error en la llamada: ' + err.message);
-                manejarFinDeLlamada();
-            });
-        } catch (err) {
-            mostrarError('No se pudo iniciar la llamada.');
-            setBadge('ready', 'Listo');
-            btnLlamar.disabled = false;
-        }
-    }
-
-    function colgar() {
-        if (activeCall) activeCall.disconnect();
-    }
-
-    async function manejarFinDeLlamada() {
-        detenerCronometro();
-        btnColgar.hidden = true;
-        setBadge('ready', 'Llamada finalizada');
-
-        let resultadoSugerido = 'contestada';
-        try {
-            if (activeCallSid) {
-                const respuesta = await fetch(`/dialer/llamada/${activeCallSid}`);
-                if (respuesta.ok) {
-                    const datos = await respuesta.json();
-                    if (datos.resultado) resultadoSugerido = datos.resultado;
-                }
-            }
-        } catch (err) {
-            // si falla la consulta, seguimos con el valor por defecto
-        }
-
-        const radio = wrapupOptions.querySelector(`input[value="${resultadoSugerido}"]`);
-        if (radio) radio.checked = true;
-
+    function mostrarWrapup() {
+        wrapupOptions.querySelectorAll('input[name="resultado"]').forEach((r) => {
+            r.checked = false;
+        });
         wrapupPanel.hidden = false;
     }
 
@@ -174,31 +55,22 @@
             return;
         }
 
+        limpiarError();
         btnConfirmar.disabled = true;
         try {
-            const respuesta = await fetch(wrapupUrl, {
+            const respuesta = await fetch(registrarUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    call_sid: activeCallSid,
+                    cliente_id: cliente.id,
                     resultado: seleccionado.value,
                 }),
             });
-            if (!respuesta.ok) throw new Error('wrapup');
+            if (!respuesta.ok) throw new Error('registrar');
             const datos = await respuesta.json();
 
-            wrapupPanel.hidden = true;
-            activeCall = null;
-            activeCallSid = null;
             cliente = datos.cliente;
             pintarCliente();
-
-            if (cliente) {
-                setBadge('ready', 'Listo');
-                await llamar();
-            } else {
-                setBadge('ready', 'Cola completada');
-            }
         } catch (err) {
             mostrarError('No se pudo guardar el resultado. Inténtalo de nuevo.');
         } finally {
@@ -206,14 +78,8 @@
         }
     }
 
-    btnLlamar.addEventListener('click', llamar);
-    btnColgar.addEventListener('click', colgar);
+    btnTerminada.addEventListener('click', mostrarWrapup);
     btnConfirmar.addEventListener('click', confirmarWrapup);
 
     pintarCliente();
-    if (cliente) {
-        inicializarDevice();
-    } else {
-        setBadge('ready', 'Listo');
-    }
 })();
