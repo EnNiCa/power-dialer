@@ -7,3 +7,7 @@ __pycache__/
 .claude/
 .agents/
 skills-lock.json
+
+# ficheros de prueba para /clientes/importar, no son datos reales
+ejemplo_clientes.csv
+ejemplo_clientes.xlsx

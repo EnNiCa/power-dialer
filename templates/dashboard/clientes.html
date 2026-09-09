@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}Clientes - Dialer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Clientes</h1>
+        <p class="page-subtitle">Listado de clientes y su estado de contacto.</p>
+    </div>
+
+    {% if es_admin %}
+        <section class="queue-panel">
+            <div class="queue-panel-header">
+                <h2>Importar clientes</h2>
+            </div>
+            <form method="POST" action="{{ url_for('dashboard.importar_clientes') }}"
+                  enctype="multipart/form-data" class="import-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="file" name="archivo" accept=".csv,.xlsx" required>
+                <button type="submit" class="btn-primary">Importar</button>
+            </form>
+            <p class="import-hint">Fichero .csv o .xlsx con columnas "nombre" y "telefono". Reimportar el mismo fichero actualiza los clientes existentes (por teléfono) en vez de duplicarlos.</p>
+        </section>
+    {% endif %}
+
+    <section class="queue-panel">
+        <div class="queue-panel-header">
+            <h2>Todos los clientes</h2>
+        </div>
+        {% if clientes %}
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.nombre }}</td>
+                            <td>{{ cliente.telefono }}</td>
+                            <td>{{ 'Contactado' if cliente.contactado else 'Pendiente' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty-state">Todavía no hay clientes cargados.</p>
+        {% endif %}
+    </section>
+{% endblock %}

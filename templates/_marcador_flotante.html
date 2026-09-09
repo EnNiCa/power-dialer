@@ -1,0 +1,97 @@
+<div id="marcador-flotante"
+     data-buscar-url="{{ url_for('dashboard.buscar_clientes_ruta') }}"
+     data-registrar-url="{{ url_for('dialer.registrar') }}"
+     data-siguiente-url="{{ url_for('dialer.siguiente') }}">
+
+    <div id="marcador-panel">
+
+        <div id="marcador-vista-marcar" class="marcador-vista">
+            <div id="marcador-numero-actual">
+                <span id="marcador-numero-nombre"></span>
+                <span id="marcador-numero-telefono">Selecciona o marca un número</span>
+            </div>
+            <div class="marcador-buscador">
+                <input type="text" id="marcador-input" placeholder="Buscar cliente o marcar número" autocomplete="off">
+                <ul id="marcador-resultados" hidden></ul>
+            </div>
+            <div class="marcador-teclado">
+                <button type="button" class="marcador-tecla" data-digito="1">1</button>
+                <button type="button" class="marcador-tecla" data-digito="2">2</button>
+                <button type="button" class="marcador-tecla" data-digito="3">3</button>
+                <button type="button" class="marcador-tecla" data-digito="4">4</button>
+                <button type="button" class="marcador-tecla" data-digito="5">5</button>
+                <button type="button" class="marcador-tecla" data-digito="6">6</button>
+                <button type="button" class="marcador-tecla" data-digito="7">7</button>
+                <button type="button" class="marcador-tecla" data-digito="8">8</button>
+                <button type="button" class="marcador-tecla" data-digito="9">9</button>
+                <button type="button" class="marcador-tecla" data-digito="*">*</button>
+                <button type="button" class="marcador-tecla" data-digito="0">0</button>
+                <button type="button" class="marcador-tecla" data-digito="#">#</button>
+            </div>
+            <button type="button" id="marcador-btn-llamar" class="marcador-btn-principal marcador-btn-llamar" disabled>
+                <span aria-hidden="true">📞</span> Llamar
+            </button>
+        </div>
+
+        <div id="marcador-vista-llamada" class="marcador-vista" hidden>
+            <div class="marcador-llamada-info">
+                <span id="marcador-llamada-nombre" class="marcador-llamada-nombre"></span>
+                <span id="marcador-llamada-telefono" class="marcador-llamada-telefono"></span>
+                <span id="marcador-llamada-estado"></span>
+                <span id="marcador-llamada-timer" class="marcador-llamada-timer">00:00</span>
+            </div>
+
+            <div id="marcador-mini-teclado" class="marcador-teclado" hidden>
+                <span id="marcador-tono-mostrado" aria-live="polite"></span>
+                <button type="button" class="marcador-tecla" data-digito="1">1</button>
+                <button type="button" class="marcador-tecla" data-digito="2">2</button>
+                <button type="button" class="marcador-tecla" data-digito="3">3</button>
+                <button type="button" class="marcador-tecla" data-digito="4">4</button>
+                <button type="button" class="marcador-tecla" data-digito="5">5</button>
+                <button type="button" class="marcador-tecla" data-digito="6">6</button>
+                <button type="button" class="marcador-tecla" data-digito="7">7</button>
+                <button type="button" class="marcador-tecla" data-digito="8">8</button>
+                <button type="button" class="marcador-tecla" data-digito="9">9</button>
+                <button type="button" class="marcador-tecla" data-digito="*">*</button>
+                <button type="button" class="marcador-tecla" data-digito="0">0</button>
+                <button type="button" class="marcador-tecla" data-digito="#">#</button>
+            </div>
+
+            <p id="marcador-nota" hidden></p>
+
+            <div class="marcador-controles">
+                <button type="button" class="marcador-control" id="marcador-btn-silenciar">
+                    <span aria-hidden="true">🔇</span><small>Silenciar</small>
+                </button>
+                <button type="button" class="marcador-control" id="marcador-btn-grabar">
+                    <span aria-hidden="true">⏺</span><small>Grabar</small>
+                </button>
+                <button type="button" class="marcador-control" id="marcador-btn-anadir">
+                    <span aria-hidden="true">➕</span><small>Añadir</small>
+                </button>
+                <button type="button" class="marcador-control" id="marcador-btn-teclado">
+                    <span aria-hidden="true">⌨</span><small>Teclado</small>
+                </button>
+                <button type="button" class="marcador-control" id="marcador-btn-retener">
+                    <span aria-hidden="true" id="marcador-icono-retener">⏸</span><small id="marcador-texto-retener">Retener</small>
+                </button>
+                <button type="button" class="marcador-control marcador-control-colgar" id="marcador-btn-colgar">
+                    <span aria-hidden="true">☎</span><small>Colgar</small>
+                </button>
+            </div>
+        </div>
+
+        <div id="marcador-vista-resultado" class="marcador-vista" hidden>
+            <h3>¿Cómo fue la llamada con <span id="marcador-resultado-nombre"></span>?</h3>
+            <div class="marcador-resultado-opciones" id="marcador-resultado-opciones">
+                <label><input type="radio" name="marcador-resultado" value="contestada"> Contestada</label>
+                <label><input type="radio" name="marcador-resultado" value="buzon"> Buzón de voz</label>
+                <label><input type="radio" name="marcador-resultado" value="no_contesta"> No contesta</label>
+                <label><input type="radio" name="marcador-resultado" value="ocupado"> Ocupado</label>
+            </div>
+            <p id="marcador-error" hidden></p>
+            <button type="button" id="marcador-btn-confirmar" class="marcador-btn-principal">Confirmar</button>
+        </div>
+
+    </div>
+</div>

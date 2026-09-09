@@ -2,11 +2,22 @@ from flask import Blueprint, request, jsonify, session
 from db import get_connection
 from auth.decoradores import login_required
 from auth.csrf import require_csrf
-from dashboard.queries import obtener_cola, cliente_esta_pendiente
+from dashboard.queries import obtener_cola, cliente_existe
 
 dialer_bp = Blueprint('dialer', __name__, url_prefix='/dialer')
 
 RESULTADOS_VALIDOS = {'contestada', 'no_contesta', 'buzon', 'ocupado'}
+
+
+@dialer_bp.route('/siguiente')
+@login_required
+def siguiente():
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+    cola = obtener_cola(cursor, limit=1)
+    cursor.close()
+    conexion.close()
+    return jsonify(cliente=cola[0] if cola else None)
 
 
 @dialer_bp.route('/registrar', methods=['POST'])
@@ -36,10 +47,10 @@ def registrar():
     conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)
 
-    if not cliente_esta_pendiente(cursor, cliente_id):
+    if not cliente_existe(cursor, cliente_id):
         cursor.close()
         conexion.close()
-        return jsonify(error='ese cliente ya no está pendiente'), 409
+        return jsonify(error='cliente no encontrado'), 404
 
     cursor.execute(
         """

@@ -12,7 +12,7 @@ def csrf_token():
 def require_csrf(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        enviado = request.headers.get('X-CSRF-Token', '')
+        enviado = request.headers.get('X-CSRF-Token') or request.form.get('csrf_token', '')
         esperado = session.get('csrf_token', '')
         if not esperado or not secrets.compare_digest(enviado, esperado):
             abort(403)

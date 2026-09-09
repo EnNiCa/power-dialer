@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block title %}Historial - Dialer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Historial de llamadas</h1>
+        <p class="page-subtitle">
+            {{ 'Últimas llamadas del equipo.' if es_admin else 'Tus últimas llamadas.' }}
+        </p>
+    </div>
+
+    <section class="queue-panel">
+        {% if llamadas %}
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        {% if es_admin %}<th>Comercial</th>{% endif %}
+                        <th>Resultado</th>
+                        <th>Duración</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for llamada in llamadas %}
+                        <tr>
+                            <td>{{ llamada.fecha }}</td>
+                            <td>{{ llamada.cliente_nombre }}</td>
+                            <td>{{ llamada.cliente_telefono }}</td>
+                            {% if es_admin %}<td>{{ llamada.agente_nombre }}</td>{% endif %}
+                            <td>{{ llamada.resultado }}</td>
+                            <td>{{ llamada.duracion }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty-state">Todavía no hay llamadas registradas.</p>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -7,7 +7,8 @@ USE dialer;
 CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(120) NOT NULL,
-    telefono VARCHAR(30) NOT NULL
+    telefono VARCHAR(30) NOT NULL,
+    UNIQUE KEY uq_telefono (telefono)
 );
 
 CREATE TABLE usuarios (

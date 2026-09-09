@@ -1,0 +1,285 @@
+#marcador-flotante {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1000;
+    font-family: var(--font-body);
+}
+
+#marcador-panel {
+    width: 300px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px rgba(20, 33, 61, 0.18);
+    padding: 1.25rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+
+#marcador-numero-actual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.125rem;
+    padding-bottom: 0.25rem;
+}
+
+#marcador-numero-nombre {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#marcador-numero-nombre:empty {
+    display: none;
+}
+
+#marcador-numero-telefono {
+    font-size: 1.0625rem;
+    color: var(--color-ink);
+}
+
+#marcador-numero-telefono.marcador-numero-vacio {
+    color: var(--color-ink-soft);
+    font-size: 0.875rem;
+}
+
+.marcador-vista {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.marcador-vista[hidden] {
+    display: none;
+}
+
+.marcador-buscador {
+    position: relative;
+}
+
+.marcador-buscador input {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+}
+
+.marcador-buscador input:focus-visible {
+    border-color: var(--color-accent);
+}
+
+#marcador-resultados {
+    margin-top: 0.375rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    list-style: none;
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+#marcador-resultados[hidden] {
+    display: none;
+}
+
+#marcador-resultados li {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+#marcador-resultados li:hover {
+    background: var(--color-bg);
+}
+
+#marcador-resultados li span {
+    color: var(--color-ink-soft);
+    font-size: 0.8125rem;
+}
+
+.marcador-teclado {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.marcador-teclado[hidden] {
+    display: none;
+}
+
+.marcador-tecla {
+    aspect-ratio: 1;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-surface);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--color-ink);
+}
+
+.marcador-tecla:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.marcador-btn-principal {
+    width: 100%;
+    padding: 0.625rem;
+    border-radius: var(--radius);
+    background: var(--color-accent);
+    color: #ffffff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.marcador-btn-principal:hover {
+    background: var(--color-accent-hover);
+}
+
+.marcador-btn-principal:disabled {
+    background: var(--color-border);
+    color: var(--color-ink-soft);
+    cursor: default;
+}
+
+.marcador-llamada-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
+    padding: 0.5rem 0 0.25rem;
+}
+
+.marcador-llamada-nombre {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+}
+
+.marcador-llamada-telefono {
+    color: var(--color-ink-soft);
+    font-size: 0.875rem;
+}
+
+#marcador-llamada-estado {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+}
+
+.marcador-llamada-timer {
+    margin-top: 0.375rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+#marcador-tono-mostrado {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    color: var(--color-accent);
+    min-height: 1.2em;
+}
+
+#marcador-nota {
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+    background: var(--color-bg);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.625rem;
+    text-align: center;
+}
+
+.marcador-controles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.marcador-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.625rem 0.25rem;
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-ink-soft);
+}
+
+.marcador-control span {
+    font-size: 1.125rem;
+}
+
+.marcador-control small {
+    font-size: 0.6875rem;
+}
+
+.marcador-control:hover {
+    color: var(--color-ink);
+}
+
+.marcador-control.activo {
+    background: var(--color-accent);
+    color: #ffffff;
+}
+
+.marcador-control-colgar {
+    background: var(--color-error);
+    color: #ffffff;
+}
+
+.marcador-control-colgar span {
+    display: inline-block;
+    transform: rotate(135deg);
+}
+
+.marcador-control-colgar:hover {
+    background: #942019;
+    color: #ffffff;
+}
+
+#marcador-vista-resultado h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.marcador-resultado-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.marcador-resultado-opciones label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+#marcador-error {
+    font-size: 0.8125rem;
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.625rem;
+}
+
+@media (max-width: 480px) {
+    #marcador-panel {
+        width: calc(100vw - 2rem);
+    }
+}

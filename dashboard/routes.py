@@ -1,10 +1,29 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, render_template, session, request, redirect, url_for, flash, jsonify
 from datetime import date
 from db import get_connection
-from auth.decoradores import login_required
-from dashboard.queries import obtener_cola, contar_pendientes
+from auth.decoradores import login_required, admin_required
+from auth.csrf import require_csrf
+from dashboard.queries import (
+    obtener_cola, contar_pendientes, obtener_historial,
+    obtener_clientes, upsert_cliente, buscar_clientes,
+)
+from dashboard.importadores import parsear_clientes, FormatoNoSoportado
 
 dashboard_bp = Blueprint('dashboard', __name__)
+
+RESULTADO_LABELS = {
+    'contestada': 'Contestada',
+    'no_contesta': 'No contesta',
+    'buzon': 'Buzón',
+    'ocupado': 'Ocupado',
+}
+
+
+def _formatear_duracion(segundos):
+    if segundos is None:
+        return '—'
+    minutos, restantes = divmod(int(segundos), 60)
+    return f"{minutos:02d}:{restantes:02d}"
 
 
 @dashboard_bp.route('/')
@@ -74,22 +93,103 @@ def inicio():
 @dashboard_bp.route('/clientes')
 @login_required
 def clientes():
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+    filas = obtener_clientes(cursor)
+    cursor.close()
+    conexion.close()
+
     return render_template(
-        'dashboard/placeholder.html',
+        'dashboard/clientes.html',
         active_nav='clientes',
-        titulo='Clientes',
-        mensaje='La gestión de clientes llega en un próximo paso.',
+        clientes=filas,
+        es_admin=session.get('rol') == 'admin',
     )
+
+
+@dashboard_bp.route('/clientes/buscar')
+@login_required
+def buscar_clientes_ruta():
+    texto = (request.args.get('q') or '').strip()
+    if len(texto) < 2:
+        return jsonify(clientes=[])
+
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+    filas = buscar_clientes(cursor, texto)
+    cursor.close()
+    conexion.close()
+
+    return jsonify(clientes=filas)
+
+
+@dashboard_bp.route('/clientes/importar', methods=['POST'])
+@admin_required
+@require_csrf
+def importar_clientes():
+    fichero = request.files.get('archivo')
+    if not fichero or not fichero.filename:
+        flash('Selecciona un fichero .csv o .xlsx para importar.')
+        return redirect(url_for('dashboard.clientes'))
+
+    try:
+        filas, omitidas = parsear_clientes(fichero, fichero.filename)
+    except FormatoNoSoportado as error:
+        flash(str(error))
+        return redirect(url_for('dashboard.clientes'))
+
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+
+    nuevos = actualizados = sin_cambios = 0
+    for fila in filas:
+        codigo = upsert_cliente(cursor, fila['nombre'], fila['telefono'])
+        if codigo == 1:
+            nuevos += 1
+        elif codigo == 2:
+            actualizados += 1
+        else:
+            sin_cambios += 1
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+
+    resumen = f"{nuevos} nuevos, {actualizados} actualizados, {sin_cambios} sin cambios"
+    if omitidas:
+        resumen += f", {len(omitidas)} filas omitidas por faltarles nombre o teléfono"
+    flash(resumen)
+
+    return redirect(url_for('dashboard.clientes'))
 
 
 @dashboard_bp.route('/historial')
 @login_required
 def historial():
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+
+    es_admin = session.get('rol') == 'admin'
+    filas = obtener_historial(cursor, usuario_id=None if es_admin else session['usuario_id'])
+    cursor.close()
+    conexion.close()
+
+    llamadas = [
+        {
+            'fecha': fila['fecha_hora'].strftime('%d/%m/%Y %H:%M'),
+            'cliente_nombre': fila['cliente_nombre'],
+            'cliente_telefono': fila['cliente_telefono'],
+            'agente_nombre': fila['agente_nombre'],
+            'resultado': RESULTADO_LABELS.get(fila['resultado'], '—'),
+            'duracion': _formatear_duracion(fila['duracion_segundos']),
+        }
+        for fila in filas
+    ]
+
     return render_template(
-        'dashboard/placeholder.html',
+        'dashboard/historial.html',
         active_nav='historial',
-        titulo='Historial de llamadas',
-        mensaje='El historial de llamadas llega en un próximo paso.',
+        llamadas=llamadas,
+        es_admin=es_admin,
     )
 
 

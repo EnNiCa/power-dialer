@@ -107,8 +107,8 @@
                     duracion_segundos: duracionSegundos,
                 }),
             });
-            if (respuesta.status === 409) {
-                mostrarError('Este cliente ya no está pendiente (puede que otro agente lo haya gestionado). Recargando la cola…');
+            if (respuesta.status === 404) {
+                mostrarError('Ese cliente ya no existe. Recargando la cola…');
                 setTimeout(() => window.location.reload(), 1500);
                 return;
             }

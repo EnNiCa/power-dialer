@@ -106,6 +106,23 @@
     padding: 2.5rem 3rem;
 }
 
+.flash-messages {
+    margin-bottom: 1.5rem;
+}
+
+.flash-message {
+    background: var(--color-surface);
+    border: 1px solid var(--color-accent);
+    color: var(--color-ink);
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+}
+
+.flash-message + .flash-message {
+    margin-top: 0.5rem;
+}
+
 .page-header h1 {
     font-family: var(--font-display);
     font-size: 1.5rem;
@@ -149,8 +166,7 @@
     color: var(--color-accent);
 }
 
-.empty-state,
-.placeholder-panel {
+.empty-state {
     color: var(--color-ink-soft);
     padding: 2rem 0;
 }

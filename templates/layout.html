@@ -7,6 +7,7 @@
     <title>{% block title %}Dialer{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/marcador.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -28,9 +29,20 @@
             </div>
         </aside>
         <main class="main-content">
+            {% with mensajes = get_flashed_messages() %}
+                {% if mensajes %}
+                    <div class="flash-messages">
+                        {% for mensaje in mensajes %}
+                            <p class="flash-message">{{ mensaje }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
             {% block content %}{% endblock %}
         </main>
     </div>
+    {% include "_marcador_flotante.html" %}
+    <script src="{{ url_for('static', filename='js/marcador.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

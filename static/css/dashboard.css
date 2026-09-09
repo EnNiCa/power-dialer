@@ -105,3 +105,16 @@
 .team-table tr:hover td {
     background: var(--color-bg);
 }
+
+.import-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.import-hint {
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+}
