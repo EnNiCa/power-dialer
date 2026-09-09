@@ -3,6 +3,7 @@
     if (!app) return;
 
     const registrarUrl = app.dataset.registrarUrl;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
     const errorBox = document.getElementById('dialer-error');
     const emptyBox = document.getElementById('dialer-empty');
@@ -14,8 +15,38 @@
     const wrapupPanel = document.getElementById('dialer-wrapup');
     const wrapupOptions = document.getElementById('wrapup-options');
     const btnConfirmar = document.getElementById('dialer-btn-confirmar');
+    const timerEl = document.getElementById('dialer-card-timer');
 
     let cliente = window.DIALER_CLIENTE || null;
+    let llamadaInicio = null;
+    let duracionSegundos = null;
+    let timerInterval = null;
+
+    function formatoMmSs(segundos) {
+        const m = Math.floor(segundos / 60).toString().padStart(2, '0');
+        const s = Math.floor(segundos % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function iniciarTimer() {
+        llamadaInicio = Date.now();
+        duracionSegundos = null;
+        timerEl.textContent = formatoMmSs(0);
+        timerEl.hidden = false;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timerEl.textContent = formatoMmSs((Date.now() - llamadaInicio) / 1000);
+        }, 1000);
+    }
+
+    function detenerTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        if (llamadaInicio) {
+            duracionSegundos = Math.round((Date.now() - llamadaInicio) / 1000);
+        }
+        llamadaInicio = null;
+    }
 
     function mostrarError(mensaje) {
         errorBox.textContent = mensaje;
@@ -29,6 +60,11 @@
 
     function pintarCliente() {
         wrapupPanel.hidden = true;
+        clearInterval(timerInterval);
+        timerInterval = null;
+        llamadaInicio = null;
+        duracionSegundos = null;
+        timerEl.hidden = true;
         if (!cliente) {
             card.hidden = true;
             emptyBox.hidden = false;
@@ -42,6 +78,7 @@
     }
 
     function mostrarWrapup() {
+        detenerTimer();
         wrapupOptions.querySelectorAll('input[name="resultado"]').forEach((r) => {
             r.checked = false;
         });
@@ -60,12 +97,21 @@
         try {
             const respuesta = await fetch(registrarUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                },
                 body: JSON.stringify({
                     cliente_id: cliente.id,
                     resultado: seleccionado.value,
+                    duracion_segundos: duracionSegundos,
                 }),
             });
+            if (respuesta.status === 409) {
+                mostrarError('Este cliente ya no está pendiente (puede que otro agente lo haya gestionado). Recargando la cola…');
+                setTimeout(() => window.location.reload(), 1500);
+                return;
+            }
             if (!respuesta.ok) throw new Error('registrar');
             const datos = await respuesta.json();
 
@@ -78,6 +124,7 @@
         }
     }
 
+    linkLlamar.addEventListener('click', iniciarTimer);
     btnTerminada.addEventListener('click', mostrarWrapup);
     btnConfirmar.addEventListener('click', confirmarWrapup);
 
