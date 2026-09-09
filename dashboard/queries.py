@@ -58,6 +58,20 @@ def obtener_historial(cursor, usuario_id=None, limit=200):
     return cursor.fetchall()
 
 
+def obtener_historial_cliente(cursor, cliente_id, limit=10):
+    cursor.execute(
+        """
+        SELECT fecha_hora, resultado
+        FROM llamadas
+        WHERE cliente_id = %s
+        ORDER BY fecha_hora DESC
+        LIMIT %s
+        """,
+        (cliente_id, limit)
+    )
+    return cursor.fetchall()
+
+
 def obtener_clientes(cursor, limit=500):
     cursor.execute(
         """

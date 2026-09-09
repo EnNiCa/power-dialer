@@ -16,6 +16,7 @@
             <div class="sidebar-brand">Dialer</div>
             <nav class="sidebar-nav">
                 <a href="{{ url_for('dashboard.inicio') }}" class="nav-link{{ ' active' if active_nav == 'dashboard' else '' }}">Panel</a>
+                <a href="{{ url_for('dashboard.analisis') }}" class="nav-link{{ ' active' if active_nav == 'analisis' else '' }}">Análisis</a>
                 <a href="{{ url_for('dashboard.clientes') }}" class="nav-link{{ ' active' if active_nav == 'clientes' else '' }}">Clientes</a>
                 <a href="{{ url_for('dashboard.historial') }}" class="nav-link{{ ' active' if active_nav == 'historial' else '' }}">Historial</a>
                 <span class="nav-link nav-link-disabled">Mensajes <span class="badge">Pronto</span></span>

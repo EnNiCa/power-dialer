@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}Panel - Dialer{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Panel</h1>
+        <p class="page-subtitle">Aquí verás la información del cliente mientras tengas una llamada en curso.</p>
+    </div>
+
+    <p id="panel-llamada-vacio" class="empty-state">
+        No hay ninguna llamada en curso. Empieza a marcar desde el marcador (abajo a la derecha) para ver aquí la información del cliente.
+    </p>
+
+    <div id="panel-llamada-activa" class="panel-llamada-card" hidden>
+        <div class="panel-llamada-cabecera">
+            <span id="panel-llamada-nombre" class="panel-llamada-nombre"></span>
+            <span id="panel-llamada-telefono" class="panel-llamada-telefono"></span>
+            <span id="panel-llamada-estado" class="panel-llamada-estado"></span>
+            <span id="panel-llamada-timer" class="panel-llamada-timer" hidden>00:00</span>
+        </div>
+
+        <div class="panel-llamada-historial">
+            <h2>Llamadas anteriores con este cliente</h2>
+            <ul id="panel-llamada-historial-lista"></ul>
+            <p id="panel-llamada-sin-historial" class="empty-state" hidden>Es la primera vez que se le llama.</p>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_scripts %}
+    <script src="{{ url_for('static', filename='js/llamada_actual.js') }}"></script>
+{% endblock %}

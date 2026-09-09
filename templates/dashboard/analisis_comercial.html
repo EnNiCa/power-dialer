@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
-{% block title %}Panel - Dialer{% endblock %}
+{% block title %}Análisis - Dialer{% endblock %}
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
 {% block content %}
     <div class="page-header">
-        <h1>Hola, {{ session.get('nombre', '') }}</h1>
-        <p class="page-subtitle">Esto es lo que tienes pendiente hoy, {{ fecha_hoy }}.</p>
+        <h1>Análisis</h1>
+        <p class="page-subtitle">Resumen de tu actividad, {{ fecha_hoy }}.</p>
     </div>
 
     <div class="stat-row">

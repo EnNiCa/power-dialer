@@ -65,6 +65,10 @@
             // almacenamiento no disponible (privado/bloqueado): el widget sigue
             // funcionando en la pestaña actual, solo no sobrevive a un reload
         }
+        // avisa a otras partes de la misma página (p.ej. el Panel) de que el
+        // estado de la llamada cambió; el evento nativo "storage" solo llega
+        // a otras pestañas, no a la que hizo el cambio
+        window.dispatchEvent(new CustomEvent('marcador-cambio'));
     }
 
     function formatoMmSs(segundosTotales) {

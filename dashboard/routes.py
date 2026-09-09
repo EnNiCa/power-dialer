@@ -6,6 +6,7 @@ from auth.csrf import require_csrf
 from dashboard.queries import (
     obtener_cola, contar_pendientes, obtener_historial,
     obtener_clientes, upsert_cliente, buscar_clientes,
+    obtener_historial_cliente,
 )
 from dashboard.importadores import parsear_clientes, FormatoNoSoportado
 
@@ -29,6 +30,40 @@ def _formatear_duracion(segundos):
 @dashboard_bp.route('/')
 @login_required
 def inicio():
+    return render_template('dashboard/inicio.html', active_nav='dashboard')
+
+
+@dashboard_bp.route('/clientes/<int:cliente_id>/detalle')
+@login_required
+def detalle_cliente(cliente_id):
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+
+    cursor.execute("SELECT id, nombre, telefono FROM clientes WHERE id = %s", (cliente_id,))
+    cliente = cursor.fetchone()
+    if not cliente:
+        cursor.close()
+        conexion.close()
+        return jsonify(error='cliente no encontrado'), 404
+
+    filas = obtener_historial_cliente(cursor, cliente_id)
+    cursor.close()
+    conexion.close()
+
+    historial = [
+        {
+            'fecha': fila['fecha_hora'].strftime('%d/%m/%Y %H:%M'),
+            'resultado': RESULTADO_LABELS.get(fila['resultado'], '—'),
+        }
+        for fila in filas
+    ]
+
+    return jsonify(cliente=cliente, historial=historial)
+
+
+@dashboard_bp.route('/analisis')
+@login_required
+def analisis():
     conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)
 
@@ -58,8 +93,8 @@ def inicio():
         conexion.close()
 
         return render_template(
-            'dashboard/inicio_admin.html',
-            active_nav='dashboard',
+            'dashboard/analisis_admin.html',
+            active_nav='analisis',
             fecha_hoy=date.today().strftime('%d/%m/%Y'),
             llamadas_hoy=stats['total'] or 0,
             contactadas_hoy=stats['contactadas'] or 0,
@@ -80,8 +115,8 @@ def inicio():
     conexion.close()
 
     return render_template(
-        'dashboard/inicio_comercial.html',
-        active_nav='dashboard',
+        'dashboard/analisis_comercial.html',
+        active_nav='analisis',
         fecha_hoy=date.today().strftime('%d/%m/%Y'),
         llamadas_hoy=stats['total'] or 0,
         contactadas_hoy=stats['contactadas'] or 0,
