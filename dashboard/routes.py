@@ -6,7 +6,7 @@ from auth.csrf import require_csrf
 from dashboard.queries import (
     obtener_cola, contar_pendientes, obtener_historial,
     obtener_clientes, upsert_cliente, buscar_clientes,
-    obtener_historial_cliente,
+    obtener_historial_cliente, obtener_actividad_hoy,
 )
 from dashboard.importadores import parsear_clientes, FormatoNoSoportado
 
@@ -17,6 +17,7 @@ RESULTADO_LABELS = {
     'no_contesta': 'No contesta',
     'buzon': 'Buzón',
     'ocupado': 'Ocupado',
+    'cancelada': 'Cancelada',
 }
 
 
@@ -30,7 +31,32 @@ def _formatear_duracion(segundos):
 @dashboard_bp.route('/')
 @login_required
 def inicio():
-    return render_template('dashboard/inicio.html', active_nav='dashboard')
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+    es_admin = session.get('rol') == 'admin'
+    filas = obtener_actividad_hoy(cursor, usuario_id=None if es_admin else session['usuario_id'])
+    cursor.close()
+    conexion.close()
+
+    actividad = []
+    for fila in filas:
+        if fila['modo'] == 'entrante':
+            icono = 'recibida'
+        elif fila['resultado'] == 'cancelada':
+            icono = 'cancelada'
+        elif fila['resultado'] == 'buzon':
+            icono = 'buzon'
+        else:
+            icono = 'realizada'
+        actividad.append({
+            'id': fila['cliente_id'],
+            'nombre': fila['nombre'],
+            'telefono': fila['telefono'],
+            'icono': icono,
+            'hora': fila['fecha_hora'].strftime('%H:%M'),
+        })
+
+    return render_template('dashboard/inicio.html', active_nav='dashboard', actividad=actividad)
 
 
 @dashboard_bp.route('/clientes/<int:cliente_id>/detalle')
@@ -39,7 +65,7 @@ def detalle_cliente(cliente_id):
     conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)
 
-    cursor.execute("SELECT id, nombre, telefono FROM clientes WHERE id = %s", (cliente_id,))
+    cursor.execute("SELECT * FROM clientes WHERE id = %s", (cliente_id,))
     cliente = cursor.fetchone()
     if not cliente:
         cursor.close()
@@ -59,6 +85,80 @@ def detalle_cliente(cliente_id):
     ]
 
     return jsonify(cliente=cliente, historial=historial)
+
+
+CAMPOS_TEXTO_FICHA = {
+    'email': 120,
+    'telefono2': 30,
+    'telefono3': 30,
+    'fax': 30,
+    'observaciones': 4000,
+    'direccion': 255,
+    'cp': 10,
+    'poblacion': 120,
+    'provincia': 120,
+    'operador': 120,
+    'canal': 120,
+    'quien_ref': 20,
+}
+
+CAMPOS_CIERRE_FICHA = [
+    'cierre',
+    'cierre_nulo',
+    'cierre_venta_energia',
+    'cierre_venta_teleco',
+    'cierre_venta_alarmas',
+]
+
+
+@dashboard_bp.route('/clientes/<int:cliente_id>/actualizar', methods=['POST'])
+@login_required
+@require_csrf
+def actualizar_cliente(cliente_id):
+    datos = request.get_json(silent=True) or {}
+    nombre = (datos.get('nombre') or '').strip()
+    telefono = (datos.get('telefono') or '').strip()
+
+    if not nombre or not telefono:
+        return jsonify(error='Nombre y teléfono son obligatorios'), 400
+
+    campos = {'nombre': nombre, 'telefono': telefono}
+    for campo, maximo in CAMPOS_TEXTO_FICHA.items():
+        valor = datos.get(campo)
+        valor = str(valor).strip()[:maximo] if valor is not None else ''
+        campos[campo] = valor or None
+    for campo in CAMPOS_CIERRE_FICHA:
+        campos[campo] = bool(datos.get(campo))
+
+    conexion = get_connection()
+    cursor = conexion.cursor(dictionary=True)
+
+    cursor.execute("SELECT id FROM clientes WHERE id = %s", (cliente_id,))
+    if not cursor.fetchone():
+        cursor.close()
+        conexion.close()
+        return jsonify(error='cliente no encontrado'), 404
+
+    cursor.execute("SELECT id FROM clientes WHERE telefono = %s AND id != %s", (telefono, cliente_id))
+    if cursor.fetchone():
+        cursor.close()
+        conexion.close()
+        return jsonify(error='Ya existe otro cliente con ese teléfono'), 409
+
+    columnas = list(campos.keys())
+    asignaciones = ', '.join(f"{columna} = %s" for columna in columnas)
+    cursor.execute(
+        f"UPDATE clientes SET {asignaciones} WHERE id = %s",
+        [campos[columna] for columna in columnas] + [cliente_id]
+    )
+    conexion.commit()
+
+    cursor.execute("SELECT * FROM clientes WHERE id = %s", (cliente_id,))
+    cliente = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+
+    return jsonify(cliente=cliente)
 
 
 @dashboard_bp.route('/analisis')

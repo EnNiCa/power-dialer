@@ -6,7 +6,8 @@ from dashboard.queries import obtener_cola, cliente_existe
 
 dialer_bp = Blueprint('dialer', __name__, url_prefix='/dialer')
 
-RESULTADOS_VALIDOS = {'contestada', 'no_contesta', 'buzon', 'ocupado'}
+RESULTADOS_VALIDOS = {'contestada', 'no_contesta', 'buzon', 'ocupado', 'cancelada'}
+OBSERVACIONES_MAX = 2000
 
 
 @dialer_bp.route('/siguiente')
@@ -44,6 +45,10 @@ def registrar():
         except (TypeError, ValueError):
             return jsonify(error='duracion_segundos inválida'), 400
 
+    observaciones = datos.get('observaciones')
+    if observaciones is not None:
+        observaciones = str(observaciones).strip()[:OBSERVACIONES_MAX] or None
+
     conexion = get_connection()
     cursor = conexion.cursor(dictionary=True)
 
@@ -54,10 +59,10 @@ def registrar():
 
     cursor.execute(
         """
-        INSERT INTO llamadas (cliente_id, usuario_id, modo, estado, resultado, duracion_segundos)
-        VALUES (%s, %s, 'saliente', 'finalizada', %s, %s)
+        INSERT INTO llamadas (cliente_id, usuario_id, modo, estado, resultado, duracion_segundos, observaciones)
+        VALUES (%s, %s, 'saliente', 'finalizada', %s, %s, %s)
         """,
-        (cliente_id, session['usuario_id'], resultado, duracion_segundos)
+        (cliente_id, session['usuario_id'], resultado, duracion_segundos, observaciones)
     )
     conexion.commit()
 

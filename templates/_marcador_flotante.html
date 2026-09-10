@@ -3,7 +3,14 @@
      data-registrar-url="{{ url_for('dialer.registrar') }}"
      data-siguiente-url="{{ url_for('dialer.siguiente') }}">
 
+    <button type="button" id="marcador-btn-mostrar" hidden aria-label="Mostrar marcador">
+        <span aria-hidden="true">📞</span>
+    </button>
+
     <div id="marcador-panel">
+        <button type="button" id="marcador-btn-ocultar" aria-label="Ocultar marcador">
+            <span aria-hidden="true">&times;</span>
+        </button>
 
         <div id="marcador-vista-marcar" class="marcador-vista">
             <div id="marcador-numero-actual">
@@ -12,6 +19,9 @@
             </div>
             <div class="marcador-buscador">
                 <input type="text" id="marcador-input" placeholder="Buscar cliente o marcar número" autocomplete="off">
+                <button type="button" id="marcador-btn-borrar" aria-label="Borrar último carácter" title="Borrar último carácter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 3 12l6 6h10a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H9z"/><path d="m11 9.5 5 5M16 9.5l-5 5"/></svg>
+                </button>
                 <ul id="marcador-resultados" hidden></ul>
             </div>
             <div class="marcador-teclado">
@@ -88,7 +98,9 @@
                 <label><input type="radio" name="marcador-resultado" value="buzon"> Buzón de voz</label>
                 <label><input type="radio" name="marcador-resultado" value="no_contesta"> No contesta</label>
                 <label><input type="radio" name="marcador-resultado" value="ocupado"> Ocupado</label>
+                <label><input type="radio" name="marcador-resultado" value="cancelada"> Cancelada</label>
             </div>
+            <textarea id="marcador-observaciones" placeholder="Observaciones (opcional)" rows="2"></textarea>
             <p id="marcador-error" hidden></p>
             <button type="button" id="marcador-btn-confirmar" class="marcador-btn-principal">Confirmar</button>
         </div>

@@ -7,6 +7,7 @@
 }
 
 #marcador-panel {
+    position: relative;
     width: 300px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -15,6 +16,50 @@
     padding: 1.25rem;
     max-height: calc(100vh - 3rem);
     overflow-y: auto;
+}
+
+#marcador-btn-ocultar {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-bg);
+    color: var(--color-ink-soft);
+    font-size: 1.125rem;
+    line-height: 1;
+    z-index: 1;
+}
+
+#marcador-btn-ocultar:hover {
+    background: var(--color-border);
+    color: var(--color-ink);
+}
+
+#marcador-btn-mostrar {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1000;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: #ffffff;
+    font-size: 1.25rem;
+    box-shadow: 0 12px 32px rgba(20, 33, 61, 0.18);
+}
+
+#marcador-btn-mostrar:hover {
+    background: var(--color-accent-hover);
+}
+
+#marcador-btn-mostrar[hidden] {
+    display: none;
 }
 
 #marcador-numero-actual {
@@ -62,7 +107,7 @@
 
 .marcador-buscador input {
     width: 100%;
-    padding: 0.625rem 0.75rem;
+    padding: 0.625rem 2.25rem 0.625rem 0.75rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     font-size: 0.9375rem;
@@ -71,6 +116,28 @@
 
 .marcador-buscador input:focus-visible {
     border-color: var(--color-accent);
+}
+
+#marcador-btn-borrar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2.25rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--color-ink-soft);
+}
+
+#marcador-btn-borrar svg {
+    width: 1.0625rem;
+    height: 1.0625rem;
+}
+
+#marcador-btn-borrar:hover {
+    color: var(--color-error);
 }
 
 #marcador-resultados {
@@ -268,6 +335,20 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     cursor: pointer;
+}
+
+#marcador-observaciones {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.8125rem;
+    font-family: var(--font-body);
+    resize: vertical;
+}
+
+#marcador-observaciones:focus-visible {
+    border-color: var(--color-accent);
 }
 
 #marcador-error {

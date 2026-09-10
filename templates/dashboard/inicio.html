@@ -3,28 +3,185 @@
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
+
+{% macro ficha_campos(prefijo) %}
+    <h3 class="ficha-seccion-titulo">Datos generales</h3>
+    <div class="ficha-grid">
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-nombre">Nombre</label>
+            <input type="text" id="{{ prefijo }}-nombre" required>
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-telefono">Teléfono</label>
+            <input type="text" id="{{ prefijo }}-telefono" required>
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-telefono2">Teléfono 2</label>
+            <input type="text" id="{{ prefijo }}-telefono2">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-telefono3">Teléfono 3</label>
+            <input type="text" id="{{ prefijo }}-telefono3">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-email">Correo electrónico</label>
+            <input type="email" id="{{ prefijo }}-email">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-fax">Fax</label>
+            <input type="text" id="{{ prefijo }}-fax">
+        </div>
+        <div class="ficha-campo ficha-campo-ancho">
+            <label for="{{ prefijo }}-observaciones">Observaciones</label>
+            <textarea id="{{ prefijo }}-observaciones" rows="3"></textarea>
+        </div>
+    </div>
+
+    <h3 class="ficha-seccion-titulo">Campos adicionales</h3>
+    <div class="ficha-grid">
+        <div class="ficha-campo ficha-campo-ancho">
+            <label for="{{ prefijo }}-direccion">Dirección</label>
+            <input type="text" id="{{ prefijo }}-direccion">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-cp">CP</label>
+            <input type="text" id="{{ prefijo }}-cp">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-poblacion">Población</label>
+            <input type="text" id="{{ prefijo }}-poblacion">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-provincia">Provincia</label>
+            <input type="text" id="{{ prefijo }}-provincia">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-operador">Operador</label>
+            <input type="text" id="{{ prefijo }}-operador">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-canal">Canal</label>
+            <input type="text" id="{{ prefijo }}-canal">
+        </div>
+        <div class="ficha-campo">
+            <label for="{{ prefijo }}-quien-ref">Quién ref. (DNI)</label>
+            <input type="text" id="{{ prefijo }}-quien-ref" placeholder="DNI">
+        </div>
+    </div>
+
+    <div class="ficha-cierres">
+        <label><input type="checkbox" id="{{ prefijo }}-cierre"> Cierre</label>
+        <label><input type="checkbox" id="{{ prefijo }}-cierre-nulo"> Cierre nulo</label>
+        <label><input type="checkbox" id="{{ prefijo }}-cierre-venta-energia"> Cierre venta energía</label>
+        <label><input type="checkbox" id="{{ prefijo }}-cierre-venta-teleco"> Cierre venta teleco</label>
+        <label><input type="checkbox" id="{{ prefijo }}-cierre-venta-alarmas"> Cierre venta alarmas</label>
+    </div>
+{% endmacro %}
+
 {% block content %}
     <div class="page-header">
         <h1>Panel</h1>
         <p class="page-subtitle">Aquí verás la información del cliente mientras tengas una llamada en curso.</p>
     </div>
 
-    <p id="panel-llamada-vacio" class="empty-state">
-        No hay ninguna llamada en curso. Empieza a marcar desde el marcador (abajo a la derecha) para ver aquí la información del cliente.
-    </p>
+    <div class="panel-layout">
+        <section class="actividad-panel">
+            <div class="queue-panel-header">
+                <h2>Llamadas de hoy</h2>
+            </div>
+            {% if actividad %}
+                <ul class="actividad-lista">
+                    {% for item in actividad %}
+                        <li class="actividad-item">
+                            <button type="button" class="actividad-item-btn" data-cliente-id="{{ item.id }}">
+                                <span class="actividad-icono actividad-icono-{{ item.icono }}" aria-hidden="true">
+                                    {% if item.icono == 'realizada' %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 7 23 1 17 1"></polyline><line x1="16" y1="8" x2="23" y2="1"></line><path d="M21 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 21 16.92z"></path></svg>
+                                    {% elif item.icono == 'cancelada' %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="23" y1="1" x2="17" y2="7"></line><line x1="17" y1="1" x2="23" y2="7"></line><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    {% elif item.icono == 'recibida' %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 2 16 8 22 8"></polyline><line x1="23" y1="1" x2="16" y2="8"></line><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    {% else %}
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                    {% endif %}
+                                </span>
+                                <span class="actividad-info">
+                                    <span class="actividad-nombre">{{ item.nombre }}</span>
+                                    <span class="actividad-telefono">{{ item.telefono }}</span>
+                                </span>
+                                <span class="actividad-hora">{{ item.hora }}</span>
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-state">Todavía no has hecho ninguna llamada hoy.</p>
+            {% endif %}
+        </section>
 
-    <div id="panel-llamada-activa" class="panel-llamada-card" hidden>
-        <div class="panel-llamada-cabecera">
-            <span id="panel-llamada-nombre" class="panel-llamada-nombre"></span>
-            <span id="panel-llamada-telefono" class="panel-llamada-telefono"></span>
-            <span id="panel-llamada-estado" class="panel-llamada-estado"></span>
-            <span id="panel-llamada-timer" class="panel-llamada-timer" hidden>00:00</span>
+        <div class="panel-llamada-columna">
+            <p id="panel-llamada-vacio" class="empty-state">
+                No hay ninguna llamada en curso. Empieza a marcar desde el marcador (abajo a la derecha) para ver aquí la información del cliente.
+            </p>
+
+            <div id="panel-llamada-activa" class="panel-llamada-card" hidden>
+                <div class="panel-llamada-cabecera">
+                    <span id="panel-llamada-nombre" class="panel-llamada-nombre"></span>
+                    <span id="panel-llamada-telefono" class="panel-llamada-telefono"></span>
+                    <span id="panel-llamada-estado" class="panel-llamada-estado"></span>
+                    <span id="panel-llamada-timer" class="panel-llamada-timer" hidden>00:00</span>
+                </div>
+
+                <div id="panel-resultado-rapido" class="panel-resultado-rapido" hidden>
+                    <p class="panel-resultado-rapido-titulo">¿Se pudo hablar con el cliente?</p>
+                    <div class="panel-resultado-rapido-opciones">
+                        <button type="button" class="btn-primary" data-resultado="contestada">Contestada</button>
+                        <button type="button" class="btn-secondary" data-resultado="no_contesta">No contesta</button>
+                        <button type="button" class="btn-secondary" data-resultado="buzon">Buzón de voz</button>
+                        <button type="button" class="btn-secondary" data-resultado="ocupado">Ocupado</button>
+                        <button type="button" class="btn-secondary" data-resultado="cancelada">Cancelada</button>
+                    </div>
+                    <p id="panel-resultado-rapido-error" class="panel-resultado-error" hidden></p>
+                </div>
+
+                <form id="llamada-ficha-form" class="ficha-form ficha-form-inline" hidden>
+                    {{ ficha_campos('llamada-ficha') }}
+                    <p id="llamada-ficha-error" class="panel-resultado-error" hidden></p>
+                    <div class="ficha-acciones">
+                        <button type="button" id="llamada-ficha-cancelar" class="btn-secondary">Cancelar</button>
+                        <button type="submit" class="btn-primary" id="llamada-ficha-guardar">Guardar cambios</button>
+                    </div>
+                </form>
+
+                <p id="panel-llamada-resumen" class="panel-llamada-resumen" hidden></p>
+
+                <div class="panel-llamada-historial">
+                    <h2>Llamadas anteriores con este cliente</h2>
+                    <ul id="panel-llamada-historial-lista"></ul>
+                    <p id="panel-llamada-sin-historial" class="empty-state" hidden>Es la primera vez que se le llama.</p>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="panel-llamada-historial">
-            <h2>Llamadas anteriores con este cliente</h2>
-            <ul id="panel-llamada-historial-lista"></ul>
-            <p id="panel-llamada-sin-historial" class="empty-state" hidden>Es la primera vez que se le llama.</p>
+    <div id="ficha-modal" class="ficha-modal" hidden>
+        <div id="ficha-modal-fondo" class="ficha-modal-fondo"></div>
+        <div class="ficha-modal-caja" role="dialog" aria-modal="true" aria-labelledby="ficha-modal-titulo">
+            <button type="button" id="ficha-modal-cerrar" class="ficha-modal-cerrar" aria-label="Cerrar">&times;</button>
+            <h2 id="ficha-modal-titulo">Ficha del cliente</h2>
+            <form id="ficha-form" class="ficha-form">
+                {{ ficha_campos('ficha') }}
+                <p id="ficha-error" class="panel-resultado-error" hidden></p>
+                <div class="ficha-acciones">
+                    <button type="button" id="ficha-cancelar" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="ficha-guardar">Guardar cambios</button>
+                </div>
+            </form>
+            <div class="panel-llamada-historial">
+                <h2>Llamadas anteriores</h2>
+                <ul id="ficha-historial-lista"></ul>
+                <p id="ficha-sin-historial" class="empty-state" hidden>Sin llamadas registradas todavía.</p>
+            </div>
         </div>
     </div>
 {% endblock %}

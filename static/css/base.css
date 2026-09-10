@@ -10,6 +10,8 @@
     --color-accent-hover: #18664c;
     --color-error: #b3261e;
     --color-error-bg: #fbeceb;
+    --color-info: #2563eb;
+    --color-received: #15803d;
 
     --font-display: 'Space Grotesk', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;

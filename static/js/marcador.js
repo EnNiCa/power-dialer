@@ -10,11 +10,21 @@
 
     const CLAVE_LLAMADA = 'marcadorLlamada';
     const CLAVE_RESULTADO = 'marcadorResultadoPendiente';
+    const CLAVE_OCULTO = 'marcadorOculto';
+    const CLAVE_ULTIMO_RESULTADO = 'marcadorUltimoResultado';
 
+    // Cuando el Panel tiene su propio formulario de gestión, ese formulario
+    // se encarga de confirmar el resultado: el widget flotante no debe
+    // mostrar también su propia vista de resultado para la misma llamada.
+    const formularioPanelPresente = !!document.getElementById('panel-resultado-rapido');
+
+    const btnOcultar = document.getElementById('marcador-btn-ocultar');
+    const btnMostrar = document.getElementById('marcador-btn-mostrar');
     const vistaMarcar = document.getElementById('marcador-vista-marcar');
     const numeroNombre = document.getElementById('marcador-numero-nombre');
     const numeroTelefono = document.getElementById('marcador-numero-telefono');
     const input = document.getElementById('marcador-input');
+    const btnBorrar = document.getElementById('marcador-btn-borrar');
     const resultados = document.getElementById('marcador-resultados');
     const btnLlamar = document.getElementById('marcador-btn-llamar');
 
@@ -38,6 +48,7 @@
     const vistaResultado = document.getElementById('marcador-vista-resultado');
     const resultadoNombre = document.getElementById('marcador-resultado-nombre');
     const resultadoOpciones = document.getElementById('marcador-resultado-opciones');
+    const observaciones = document.getElementById('marcador-observaciones');
     const errorBox = document.getElementById('marcador-error');
     const btnConfirmar = document.getElementById('marcador-btn-confirmar');
 
@@ -191,6 +202,7 @@
         resultadoOpciones.querySelectorAll('input[name="marcador-resultado"]').forEach((r) => {
             r.checked = false;
         });
+        observaciones.value = '';
         errorBox.hidden = true;
     }
 
@@ -227,7 +239,13 @@
                 duracion,
             };
             guardarEstado(CLAVE_RESULTADO, pendiente);
-            pintarVistaResultado(pendiente);
+            if (formularioPanelPresente) {
+                // El Panel muestra su propio formulario de gestión para esta
+                // llamada; el widget queda listo para el siguiente número.
+                reiniciarVistaMarcar();
+            } else {
+                pintarVistaResultado(pendiente);
+            }
         } else {
             reiniciarVistaMarcar();
         }
@@ -300,6 +318,12 @@
         debounceId = setTimeout(() => ejecutarBusqueda(input.value), 250);
     });
 
+    btnBorrar.addEventListener('click', () => {
+        input.value = input.value.slice(0, -1);
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+    });
+
     document.addEventListener('click', (evento) => {
         if (!raiz.contains(evento.target)) {
             resultados.hidden = true;
@@ -365,6 +389,7 @@
                     cliente_id: pendiente.clienteId,
                     resultado: seleccionado.value,
                     duracion_segundos: pendiente.duracion,
+                    observaciones: observaciones.value.trim() || null,
                 }),
             });
             if (respuesta.status === 404) {
@@ -378,6 +403,14 @@
             const datos = await respuesta.json();
 
             guardarEstado(CLAVE_RESULTADO, null);
+            guardarEstado(CLAVE_ULTIMO_RESULTADO, {
+                clienteId: pendiente.clienteId,
+                nombre: pendiente.nombre,
+                telefono: pendiente.telefono,
+                resultado: seleccionado.value,
+                observaciones: observaciones.value.trim() || null,
+                fecha: Date.now(),
+            });
             reiniciarVistaMarcar(datos.cliente || null);
         } catch (err) {
             errorBox.textContent = 'No se pudo guardar el resultado. Inténtalo de nuevo.';
@@ -389,12 +422,31 @@
 
     btnConfirmar.addEventListener('click', confirmarResultado);
 
+    // --- Ocultar / mostrar el widget ---
+    function aplicarVisibilidad(oculto) {
+        raiz.querySelector('#marcador-panel').hidden = oculto;
+        btnMostrar.hidden = !oculto;
+    }
+
+    btnOcultar.addEventListener('click', () => {
+        guardarEstado(CLAVE_OCULTO, true);
+        aplicarVisibilidad(true);
+    });
+
+    btnMostrar.addEventListener('click', () => {
+        guardarEstado(CLAVE_OCULTO, false);
+        aplicarVisibilidad(false);
+    });
+
     // --- Restaurar estado al cargar cualquier página ---
+    aplicarVisibilidad(!!leerEstado(CLAVE_OCULTO));
     const resultadoPendiente = leerEstado(CLAVE_RESULTADO);
     const llamadaActiva = leerEstado(CLAVE_LLAMADA);
 
-    if (resultadoPendiente) {
+    if (resultadoPendiente && !formularioPanelPresente) {
         pintarVistaResultado(resultadoPendiente);
+    } else if (resultadoPendiente) {
+        reiniciarVistaMarcar();
     } else if (llamadaActiva) {
         pintarVistaLlamada(llamadaActiva);
     } else {

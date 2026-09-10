@@ -58,6 +58,30 @@ def obtener_historial(cursor, usuario_id=None, limit=200):
     return cursor.fetchall()
 
 
+def obtener_actividad_hoy(cursor, usuario_id=None, limit=30):
+    condiciones = ["DATE(l.fecha_hora) = CURDATE()"]
+    parametros = []
+    if usuario_id is not None:
+        condiciones.append("l.usuario_id = %s")
+        parametros.append(usuario_id)
+    where = f"WHERE {' AND '.join(condiciones)}"
+    parametros.append(limit)
+
+    cursor.execute(
+        f"""
+        SELECT l.modo, l.resultado, l.fecha_hora,
+               c.id AS cliente_id, c.nombre, c.telefono
+        FROM llamadas l
+        JOIN clientes c ON c.id = l.cliente_id
+        {where}
+        ORDER BY l.fecha_hora DESC
+        LIMIT %s
+        """,
+        parametros
+    )
+    return cursor.fetchall()
+
+
 def obtener_historial_cliente(cursor, cliente_id, limit=10):
     cursor.execute(
         """

@@ -119,9 +119,19 @@
     color: var(--color-ink-soft);
 }
 
-.panel-llamada-card {
+.panel-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 360px) minmax(0, 560px);
+    gap: 2rem;
+    align-items: start;
     margin-top: 2rem;
-    max-width: 560px;
+}
+
+.panel-llamada-columna .empty-state {
+    padding: 0;
+}
+
+.panel-llamada-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -160,6 +170,61 @@
     font-weight: 600;
 }
 
+.panel-resultado-rapido {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.panel-resultado-rapido[hidden] {
+    display: none;
+}
+
+.panel-resultado-rapido-titulo {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.panel-resultado-rapido-opciones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.ficha-form-inline {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.ficha-form-inline[hidden] {
+    display: none;
+}
+
+.panel-resultado-error {
+    font-size: 0.8125rem;
+    color: var(--color-error);
+    background: var(--color-error-bg);
+    border-radius: var(--radius);
+    padding: 0.5rem 0.625rem;
+}
+
+.panel-llamada-resumen {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    color: var(--color-ink-soft);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
 .panel-llamada-historial {
     margin-top: 2rem;
     padding-top: 1.5rem;
@@ -192,4 +257,260 @@
 
 .panel-llamada-historial li span:last-child {
     color: var(--color-ink-soft);
+}
+
+.actividad-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.actividad-panel .queue-panel-header {
+    border-bottom: none;
+    padding-bottom: 0.5rem;
+}
+
+.actividad-lista {
+    list-style: none;
+    max-height: 560px;
+    overflow-y: auto;
+}
+
+.actividad-item {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.actividad-item:last-child {
+    border-bottom: none;
+}
+
+.actividad-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.625rem 0.375rem;
+    margin: 0 -0.375rem;
+    background: transparent;
+    text-align: left;
+    border-radius: var(--radius);
+}
+
+.actividad-item-btn:hover {
+    background: var(--color-bg);
+}
+
+.actividad-icono {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.actividad-icono svg {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.actividad-icono-realizada {
+    color: var(--color-info);
+}
+
+.actividad-icono-cancelada {
+    color: var(--color-error);
+}
+
+.actividad-icono-recibida {
+    color: var(--color-received);
+}
+
+.actividad-icono-buzon {
+    color: var(--color-ink-soft);
+}
+
+.actividad-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.0625rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.actividad-hora {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+}
+
+.actividad-nombre {
+    font-weight: 500;
+    font-size: 0.875rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.actividad-telefono {
+    font-size: 0.8125rem;
+    color: var(--color-ink-soft);
+}
+
+@media (max-width: 900px) {
+    .panel-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px) {
+    .ficha-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ficha-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.ficha-modal[hidden] {
+    display: none;
+}
+
+.ficha-modal-fondo {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 33, 61, 0.45);
+}
+
+.ficha-modal-caja {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 48px rgba(20, 33, 61, 0.28);
+    padding: 2rem;
+}
+
+.ficha-modal-caja h2 {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.ficha-modal-cerrar {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-bg);
+    color: var(--color-ink-soft);
+    font-size: 1.125rem;
+    line-height: 1;
+}
+
+.ficha-modal-cerrar:hover {
+    background: var(--color-border);
+    color: var(--color-ink);
+}
+
+.ficha-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ficha-seccion-titulo {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.ficha-form > .ficha-seccion-titulo:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.ficha-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
+    margin-top: 0.75rem;
+}
+
+.ficha-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ficha-campo-ancho {
+    grid-column: 1 / -1;
+}
+
+.ficha-campo label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-ink-soft);
+}
+
+.ficha-campo input,
+.ficha-campo textarea {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-family: var(--font-body);
+}
+
+.ficha-campo textarea {
+    resize: vertical;
+}
+
+.ficha-campo input:focus-visible,
+.ficha-campo textarea:focus-visible {
+    border-color: var(--color-accent);
+}
+
+.ficha-cierres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.ficha-cierres label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.ficha-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }
